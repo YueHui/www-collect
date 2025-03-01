@@ -1,5 +1,5 @@
 <template>
-    <NuxtLoadingBar />
+    
     <header>
         <NuxtLink to="/">聚全网</NuxtLink>
     </header>
@@ -14,11 +14,6 @@
 </template>
 
 <style scoped>
-/* 自定义进度条样式 */
-:deep(.nuxt-loading-bar) {
-    background: linear-gradient(to right, #00dc82 0%, #36e4da 50%, #0047e1 100%);
-    height: 3px;
-}
 
 header {
     background-color: #f8f9fa;
