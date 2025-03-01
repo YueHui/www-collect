@@ -15,7 +15,34 @@
 </template>
 
 <script setup>
-
+// SEO 配置
+useHeadSafe({
+    title: '聚全网 - 成语大全_邮编区号查询_常用电话号码查询',
+    meta: [
+        {
+            name: 'keywords',
+            content: '成语大全,成语词典,邮政编码查询,邮编查询,区号查询,电话区号,常用电话号码,紧急电话,便民查询'
+        },
+        {
+            name: 'description',
+            content: '聚全网提供成语大全、邮政编码查询、电话区号查询、常用电话号码等便民查询服务，让您快速获取需要的信息。'
+        },
+        {
+            name: 'og:title',
+            content: '聚全网 - 便民查询服务平台'
+        },
+        {
+            name: 'og:description',
+            content: '提供成语、邮编、区号、常用电话等便民查询服务'
+        }
+    ],
+    link: [
+        {
+            rel: 'canonical',
+            href: 'https://collectapp.org'
+        }
+    ]
+})
 </script>
 
 <style scoped>
