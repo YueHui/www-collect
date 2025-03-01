@@ -62,17 +62,25 @@ if (similarData.length > 0) {
 }
 
 useHeadSafe({
-    title: `${data.value.name} - 成语大全`,
+    title: `${data.value.name}的意思_${data.value.name}的解释_${data.value.name}的近义词 - 聚全网`,
     meta: [
         {
             name: 'keywords',
-            content: `${data.value.name}的成语意思,${data.value.name}的例句,${data.value.name}的成语解释,${data.value.name}的成语故事,${data.value.name}的典故出处,成语大全`,
+            content: `${data.value.name},${data.value.name}的意思,${data.value.name}的解释,${data.value.name}的近义词,${data.value.name}的反义词,${data.value.name}的成语故事,${data.value.name}的典故出处`
         },
         {
             name: 'description',
-            content: getData(data.value.xxsy).length?`${data.value.name} ${getData(data.value.xxsy)}`:`${data.value.name} 成语大全`,
+            content: `${data.value.name}是什么意思？${getData(data.value.xxsy).join('；')}。查看${data.value.name}的近义词、反义词、读音、典故等详细解释。`
         },
-    ],
+        {
+            name: 'og:title',
+            content: `${data.value.name} - 成语详解`
+        },
+        {
+            name: 'og:description',
+            content: getData(data.value.xxsy).join('；')
+        }
+    ]
 })
 
 function getData(str) {
