@@ -37,6 +37,7 @@
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 tracking-wider">市</th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 tracking-wider">区</th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 tracking-wider">邮编</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 tracking-wider">区号</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
@@ -45,6 +46,7 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ item.city }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ item.area }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">{{ item.post_code }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">{{ item.area_code }}</td>
                     </tr>
                 </tbody>
             </table>
@@ -54,6 +56,21 @@
 
 <script setup>
 import data from '@/datas/youbian.json'
+
+// SEO 配置
+useHeadSafe({
+    title: '全国邮编区号查询 - 聚全网',
+    meta: [
+        {
+            name: 'description',
+            content: '全国邮政编码和电话区号查询系统，提供最新最全的中国各省市区邮编、电话区号信息，快速精准查询。'
+        },
+        {
+            name: 'keywords',
+            content: '邮政编码查询,邮编查询,区号查询,电话区号,邮编大全,区号大全'
+        }
+    ]
+})
 
 const selectedProvince = ref('')
 const selectedCity = ref('')

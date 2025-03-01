@@ -4,11 +4,11 @@
         <NuxtLink class="grid-item" to="/cy">
             <h3>成语大全</h3>
         </NuxtLink>
-        <NuxtLink class="grid-item" to="/xz">
-            <h3>星座大全</h3>
-        </NuxtLink>
         <NuxtLink class="grid-item" to="/mailCode">
             <h3>邮编区号大全</h3>
+        </NuxtLink>
+        <NuxtLink class="grid-item" to="/phoneNumbers">
+            <h3>常用电话号码</h3>
         </NuxtLink>
         
     </div>
