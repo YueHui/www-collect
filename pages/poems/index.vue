@@ -19,34 +19,34 @@
 
         <!-- 分类标签 -->
         <div class="flex flex-wrap gap-3 mb-8">
-            <span 
+            <NuxtLink 
                 v-for="tag in categories" 
                 :key="tag"
+                :to="{
+                    query: {
+                        ...route.query,
+                        category: tag === '全部' ? undefined : tag,
+                        page: 1
+                    }
+                }"
                 :class="[
                     'px-4 py-2 rounded-full cursor-pointer transition-colors',
-                    selectedCategory === tag 
+                    (route.query.category || '全部') === tag 
                         ? 'bg-green-500 text-white' 
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 ]"
-                @click="selectCategory(tag)"
             >
                 {{ tag }}
-            </span>
+            </NuxtLink>
         </div>
 
         <!-- 错误提示 -->
         <div v-if="error" class="bg-red-50 text-red-700 p-4 rounded-lg mb-8 text-center">
-            {{ error }}
-        </div>
-
-        <!-- 加载状态 -->
-        <div v-if="loading" class="flex flex-col items-center justify-center py-12">
-            <div class="w-10 h-10 border-4 border-gray-200 border-t-green-500 rounded-full animate-spin"></div>
-            <p class="mt-4 text-gray-600">加载中...</p>
+            获取数据失败，请稍后重试
         </div>
 
         <!-- 诗词列表 -->
-        <div v-else class="space-y-6">
+        <div class="space-y-6">
             <div v-if="poems.length === 0" class="text-center py-12 text-gray-600">
                 暂无相关诗词
             </div>
@@ -58,14 +58,18 @@
                     
                     <!-- 诗词内容 -->
                     <div class="space-y-2 mb-4">
-                        <p v-for="(line, index) in formatPoemContent(poem.content)" :key="index" class="text-gray-700 leading-relaxed">
+                        <p v-for="(line, index) in formatPoemContent(poem.content)" 
+                           :key="index" 
+                           class="text-gray-700 leading-relaxed">
                             {{ line }}
                         </p>
                     </div>
 
                     <!-- 标签 -->
                     <div v-if="poem.tags && poem.tags.length" class="flex flex-wrap gap-2">
-                        <span v-for="tag in poem.tags.slice(0, 2)" :key="tag" class="px-2 py-1 bg-green-50 text-green-700 text-sm rounded-full">
+                        <span v-for="tag in poem.tags.slice(0, 2)" 
+                              :key="tag" 
+                              class="px-2 py-1 bg-green-50 text-green-700 text-sm rounded-full">
                             {{ tag }}
                         </span>
                     </div>
@@ -75,57 +79,47 @@
 
         <!-- 分页 -->
         <Pagination 
-            v-if="!loading && poems.length > 0"
+            v-if="poems.length > 0"
             class="mt-8"
             :total="total"
             :total-pages="totalPages"
             :current-page="currentPage"
-            :max-display-pages="5"
         />
     </div>
 </template>
 
 <script setup>
 import { formatPoemContent } from '~/utils/utils'
-// SEO 配置
-useHeadSafe({
-    title: '古诗词大全_唐诗宋词元曲_中国古典诗词查询',
-    meta: [
-        {
-            name: 'keywords',
-            content: '古诗词,唐诗,宋词,元曲,诗词大全,古典诗词,诗词查询,诗词赏析'
-        },
-        {
-            name: 'description',
-            content: '聚全网提供全面的古诗词查询服务，包括唐诗、宋词、元曲等中国古典诗词，支持按作者、朝代、题材等多种方式查询。'
-        },
-        {
-            name: 'og:title',
-            content: '古诗词大全 - 中国古典诗词查询平台'
-        },
-        {
-            name: 'og:description',
-            content: '提供全面的古诗词查询服务，包括唐诗、宋词、元曲等中国古典诗词'
-        }
-    ]
-})
-
 const route = useRoute()
 
 // 状态管理
-const searchQuery = ref('')
-const selectedCategory = ref('全部')
-const currentPage = computed(() => Number(route.query.page) || 1)
-const totalPages = ref(1)
-const poems = ref([])
-const loading = ref(false)
-const error = ref(null)
-const total = ref(0)
-
-
-
-// 分类列表
+const searchQuery = ref(route.query.search || '')
+const selectedCategory = ref(route.query.category || '全部')
 const categories = ['全部', '唐诗', '宋词', '元曲', '诗经', '楚辞']
+
+// 使用 useAsyncData 进行服务端渲染
+const { data, error, refresh } = await useAsyncData(
+    'poems-list',
+    async () => {
+        const params = new URLSearchParams({
+            page: route.query.page || '1',
+            category: route.query.category || '',
+            search: route.query.search || ''
+        })
+        return await $fetch(`/api/poems?${params}`)
+    },
+    {
+        server: true,
+        lazy: false,
+        watch: [() => route.query]  // 监听路由参数变化
+    }
+)
+
+// 计算属性
+const poems = computed(() => data.value?.items || [])
+const total = computed(() => data.value?.total || 0)
+const totalPages = computed(() => data.value?.totalPages || 1)
+const currentPage = computed(() => Number(route.query.page) || 1)
 
 // 搜索处理
 const handleSearch = () => {
@@ -150,48 +144,28 @@ const selectCategory = (category) => {
     })
 }
 
-// 获取诗词列表
-const fetchPoems = async () => {
-    loading.value = true
-    error.value = null
-    
-    try {
-        const params = new URLSearchParams({
-            page: currentPage.value.toString(),
-            category: selectedCategory.value === '全部' ? '' : selectedCategory.value,
-            search: searchQuery.value
-        })
-
-        const response = await fetch(`/api/poems?${params}`)
-        if (!response.ok) {
-            throw new Error('获取数据失败')
+// SEO 配置
+useHead({
+    title: '古诗词大全_唐诗宋词元曲_中国古典诗词查询',
+    meta: [
+        {
+            name: 'keywords',
+            content: '古诗词,唐诗,宋词,元曲,诗词大全,古典诗词,诗词查询,诗词赏析'
+        },
+        {
+            name: 'description',
+            content: '聚全网提供全面的古诗词查询服务，包括唐诗、宋词、元曲等中国古典诗词，支持按作者、朝代、题材等多种方式查询。'
+        },
+        {
+            name: 'og:title',
+            content: '古诗词大全 - 中国古典诗词查询平台'
+        },
+        {
+            name: 'og:description',
+            content: '提供全面的古诗词查询服务，包括唐诗、宋词、元曲等中国古典诗词'
         }
-
-        const data = await response.json()
-        poems.value = data.items
-        total.value = data.total
-        totalPages.value = data.totalPages
-    } catch (err) {
-        error.value = err.message
-        console.error('获取诗词列表失败:', err)
-    } finally {
-        loading.value = false
-    }
-}
-
-// 初始加载
-onMounted(() => {
-    fetchPoems()
+    ]
 })
-
-// 监听路由参数变化
-watch(
-    () => route.query,
-    () => {
-        fetchPoems()
-    },
-    { deep: true }
-)
 </script>
 
 <style scoped>
