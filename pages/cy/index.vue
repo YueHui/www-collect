@@ -20,13 +20,23 @@
         </div>
     </div>
 
+    <!-- 分页 -->
     <Pagination 
-        v-model="currentPage"
-        :total-pages="totalPages"
-    />
+            v-if="!loading && items.length > 0"
+            class="mt-8"
+            :total="total"
+            :total-pages="totalPages"
+            :current-page="currentPage"
+            :max-display-pages="5"
+        />
 </template>
 
 <script setup>
+import { onMounted, watch } from 'vue'
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
+
 const currentPage = ref(1)
 const pageSize = ref(50)
 
@@ -59,6 +69,44 @@ watch(currentPage, async (newPage) => {
 
 const items = computed(() => response.value?.data || [])
 const totalPages = computed(() => response.value?.pagination?.totalPages || 0)
+
+// 状态管理
+const total = ref(0)
+const loading = ref(false)
+
+// 初始加载
+onMounted(() => {
+    // 从 URL 获取初始页码
+    currentPage.value = Number(route.query.page) || 1
+    fetchPoems()
+})
+
+// 监听路由参数变化
+watch(
+    () => route.query,
+    () => {
+        currentPage.value = Number(route.query.page) || 1
+        fetchPoems()
+    },
+    { deep: true }
+)
+
+
+const fetchPoems = async () => {
+    try {
+        const { data } = await useFetch(`/api/cy/indexData`, {
+            query: {
+                page: currentPage.value,
+                pageSize: pageSize.value
+            }
+        })
+        items.value = data.value?.data || []
+        total.value = data.value?.pagination?.total || 0
+        totalPages.value = data.value?.pagination?.totalPages || 0
+    } catch (e) {
+        console.error('Error fetching poems:', e)
+    }
+}
 </script>
 
 <style scoped>

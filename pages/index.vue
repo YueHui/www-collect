@@ -10,6 +10,9 @@
         <NuxtLink class="grid-item" to="/phoneNumbers">
             <h3>常用电话号码</h3>
         </NuxtLink>
+        <NuxtLink class="grid-item" to="/poems">
+            <h3>古诗词大全</h3>
+        </NuxtLink>
         
     </div>
 </template>
