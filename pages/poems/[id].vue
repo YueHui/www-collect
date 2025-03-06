@@ -1,15 +1,9 @@
 <template>
     <Breadcrumb :current-name="poem && poem.title" />
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <!-- 加载状态 -->
-        <div v-if="loading" class="flex flex-col items-center justify-center py-12">
-            <div class="w-10 h-10 border-4 border-gray-200 border-t-green-500 rounded-full animate-spin"></div>
-            <p class="mt-4 text-gray-600">加载中...</p>
-        </div>
-
         <!-- 错误提示 -->
-        <div v-else-if="error" class="bg-red-50 text-red-700 p-4 rounded-lg mb-8 text-center">
-            {{ error }}
+        <div v-if="error" class="bg-red-50 text-red-700 p-4 rounded-lg mb-8 text-center">
+            获取数据失败，请稍后重试
         </div>
 
         <!-- 诗词内容 -->
@@ -95,65 +89,58 @@
 import { formatPoemContent } from '~/utils/utils'
 const route = useRoute()
 const id = route.params.id
+const config = useRuntimeConfig()
 
-// 状态管理
-const poem = ref(null)
-const prevPoem = ref(null)
-const nextPoem = ref(null)
-const loading = ref(true)
-const error = ref(null)
+// 使用 useAsyncData 进行服务端渲染
+const { data, error, refresh } = await useAsyncData(
+    `poem-${id}`,
+    async () => {
+        try {
+            // 使用 $fetch 替代 fetch，它会自动处理基础 URL
+            return await $fetch(`/api/poems/${id}`)
+        } catch (err) {
+            console.error('获取诗词详情失败:', err)
+            throw err
+        }
+    },
+    {
+        server: true,
+        lazy: false
+    }
+)
+
+// 计算属性获取数据
+const poem = computed(() => data.value?.poem || null)
+const prevPoem = computed(() => data.value?.prevPoem || null)
+const nextPoem = computed(() => data.value?.nextPoem || null)
 
 // SEO 配置
-const updateSEO = () => {
-    if (!poem.value) return
-
-    useHeadSafe({
-        title: `${poem.value.title} - ${poem.value.author}的诗词 - 古诗词大全`,
-        meta: [
-            {
-                name: 'keywords',
-                content: `${poem.value.title},${poem.value.author},${poem.value.dynasty},古诗词,诗词赏析`
-            },
-            {
-                name: 'description',
-                content: poem.value.content.substring(0, 100)
-            }
-        ]
-    })
-}
-
-// 获取诗词详情
-const fetchPoemDetail = async () => {
-    loading.value = true
-    error.value = null
-    
-    try {
-        const response = await fetch(`/api/poems/${id}`)
-        if (!response.ok) {
-            throw new Error('获取数据失败')
+useHead(() => ({
+    title: poem.value 
+        ? `${poem.value.title} - ${poem.value.author}的诗词 - 古诗词大全`
+        : '古诗词大全',
+    meta: [
+        {
+            name: 'keywords',
+            content: poem.value
+                ? `${poem.value.title},${poem.value.author},${poem.value.dynasty},古诗词,诗词赏析`
+                : '古诗词,诗词大全'
+        },
+        {
+            name: 'description',
+            content: poem.value
+                ? poem.value.content.substring(0, 100)
+                : '古诗词查询和赏析平台'
         }
-
-        const data = await response.json()
-        poem.value = data.poem
-        prevPoem.value = data.prevPoem
-        nextPoem.value = data.nextPoem
-        updateSEO()
-    } catch (err) {
-        error.value = err.message
-        console.error('获取诗词详情失败:', err)
-    } finally {
-        loading.value = false
-    }
-}
-
-fetchPoemDetail();
+    ]
+}))
 
 // 监听路由变化，重新获取数据
 watch(
     () => route.params.id,
     () => {
         if (route.params.id) {
-            fetchPoemDetail()
+            refresh()
         }
     }
 )
