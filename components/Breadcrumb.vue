@@ -42,7 +42,8 @@ const pathMap = {
     'cy': '成语大全',
     'xz': '星座大全',
     'mailCode': '邮编区号',
-    'phoneNumbers': '常用电话号码'
+    'phoneNumbers': '常用电话号码',
+    'poems': '古诗词大全'
 }
 
 const breadcrumbs = computed(() => {
