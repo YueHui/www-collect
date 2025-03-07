@@ -54,7 +54,7 @@
                 class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow p-6">
                 <NuxtLink :to="`/poems/${poem._id}`" class="block">
                     <h3 class="text-xl font-semibold text-gray-900 mb-2">{{ poem.title }}</h3>
-                    <p class="text-sm text-gray-600 mb-4">{{ poem.dynasty }} · {{ poem.author }}</p>
+                    <p class="text-sm text-gray-600 mb-4">{{ poem.years }} · {{ poem.author }}</p>
                     
                     <!-- 诗词内容 -->
                     <div class="space-y-2 mb-4">

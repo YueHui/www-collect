@@ -11,7 +11,7 @@
             <!-- 标题和作者 -->
             <div class="text-center mb-8">
                 <h1 class="text-3xl font-bold text-gray-900 mb-4">{{ poem.title }}</h1>
-                <p class="text-lg text-gray-600">{{ poem.dynasty }} · {{ poem.author }}</p>
+                <p class="text-lg text-gray-600">{{ poem.years }} · {{ poem.author }}</p>
             </div>
 
             <!-- 诗词正文 -->
@@ -123,7 +123,7 @@ useHead(() => ({
         {
             name: 'keywords',
             content: poem.value
-                ? `${poem.value.title},${poem.value.author},${poem.value.dynasty},古诗词,诗词赏析`
+                ? `${poem.value.title},${poem.value.author},${poem.value.years},古诗词,诗词赏析`
                 : '古诗词,诗词大全'
         },
         {
