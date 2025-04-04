@@ -23,7 +23,10 @@
             <h3>古诗词大全</h3>
             <p class="text-sm text-gray-600 mt-2">唐诗宋词元曲精选鉴赏</p>
         </NuxtLink>
-        
+        <NuxtLink class="grid-item" to="/ai">
+            <h3>AI大全</h3>
+            <p class="text-sm text-gray-600 mt-2">AI大全</p>
+        </NuxtLink>
     </div>
 </template>
 
